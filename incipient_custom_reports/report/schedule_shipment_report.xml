@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Schedule Shipment Report Template -->
+    <template id="report_schedule_shipment">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <style>
+                    /* Table Styling */
+                    table.st {
+                        width: calc(100% + 20px);
+                        margin-left: -10px;
+                        border-collapse: collapse;
+                        font-size: 9pt;
+                        margin-top: 20px;
+                    }
+                    table.st th {
+                        background-color: #1F3864;
+                        color: #ffffff;
+                        padding: 6px 2px;
+                        border: 1px solid #162b50;
+                        text-align: center;
+                        font-weight: bold;
+                    }
+                    table.st td {
+                        padding: 4px 2px;
+                        border: 1px solid #dee2e6;
+                        vertical-align: middle;
+                    }
+                    /* Delivery schedule sub-rows - White */
+                    tr.sch-row td {
+                        background-color: #FFFFFF;
+                        color: #000000;
+                    }
+                    /* Alternate rows - very light grey or white */
+                    tr.sch-row.alt td {
+                        background-color: #fafafa;
+                    }
+                    .tr  { text-align: right; }
+                    .tc  { text-align: center; }
+                    .no-data { text-align: center; padding: 20px; color: #666; font-style: italic; }
+                    
+                    .report-title {
+                        font-size: 22pt;
+                        font-weight: bold;
+                        margin-top: 20px;
+                        margin-bottom: 20px;
+                        text-align: center;
+                        width: 100%;
+                    }
+                    .report-meta {
+                        font-size: 10pt;
+                        margin-bottom: 10px;
+                    }
+                </style>
+
+                <div class="page">
+                    <div class="report-title">
+                        <span>Scheduled Shipments Report</span>
+                    </div>
+
+                    <div class="row report-meta">
+                        <div class="col-6">
+                            <strong>User: </strong> <t t-esc="res_user.name"/><br/>
+                            <strong>Company: </strong> <t t-esc="res_company.name"/>
+                        </div>
+                        <div class="col-6 text-end">
+                            <strong>Date: </strong> <t t-esc="report_date"/><br/>
+                            <strong>Time: </strong> <t t-esc="report_time"/>
+                        </div>
+                    </div>
+
+                    <div class="report-meta">
+                        <em>Shipments from <t t-esc="start_date"/> to <t t-esc="end_date"/></em>
+                    </div>
+
+                    <table class="st">
+                        <thead>
+                            <tr>
+                                <th style="width:10%">Order</th>
+                                <th style="width:5%">Line</th>
+                                <th style="width:13%">Customer</th>
+                                <th style="width:10%">Ship Date</th>
+                                <th style="width:10%">Via</th>
+                                <th style="width:25%">Part</th>
+                                <th style="width:9%" class="tr">Order Qty</th>
+                                <th style="width:9%" class="tr">Qty Shipped</th>
+                                <th style="width:9%" class="tr">Qty To Ship</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="report_lines">
+                                <t t-foreach="report_lines" t-as="line">
+                                    <tr t-attf-class="sch-row{{ ' alt' if line_index % 2 == 0 else '' }}">
+                                        <td><span t-esc="line['order']"/></td>
+                                        <td class="tc"><span t-esc="line['line_no']"/></td>
+                                        <td><span t-esc="line['customer']"/></td>
+                                        <td><span t-esc="line['ship_date']"/></td>
+                                        <td><span t-esc="line['via']"/></td>
+                                        <td><span t-esc="line['part']"/></td>
+                                        <td class="tr"><span t-esc="line['order_qty']" t-options='{"widget": "float", "precision": 1}'/></td>
+                                        <td class="tr"><span t-esc="line['qty_shipped']" t-options='{"widget": "float", "precision": 1}'/></td>
+                                        <td class="tr"><span t-esc="line['qty_to_ship']" t-options='{"widget": "float", "precision": 1}'/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="9" class="no-data">
+                                        No shipments found for the selected date range.
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

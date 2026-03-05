@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Order Backlog Report Template -->
+    <template id="report_order_backlog">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <style>
+                    /* Table Styling matching Scheduled Shipment Palette */
+                    table.backlog-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 9pt;
+                        margin-top: 20px;
+                    }
+                    table.backlog-table th {
+                        background-color: #1F3864;
+                        color: #ffffff;
+                        padding: 6px 2px;
+                        border: 1px solid #162b50;
+                        text-align: center;
+                        font-weight: bold;
+                    }
+                    table.backlog-table td {
+                        padding: 4px 2px;
+                        border: 1px solid #dee2e6;
+                        vertical-align: middle;
+                    }
+                    
+                    /* Row styling */
+                    tr.backlog-row td {
+                        background-color: #FFFFFF;
+                        color: #000000;
+                    }
+                    tr.backlog-row.alt td {
+                        background-color: #fafafa;
+                    }
+                    
+                    .tr { text-align: right; }
+                    .tc { text-align: center; }
+                    .no-data { text-align: center; padding: 20px; color: #666; font-style: italic; }
+                    
+                    .report-title-header {
+                        font-size: 22pt;
+                        font-weight: bold;
+                        margin-top: 20px;
+                        margin-bottom: 20px;
+                        text-align: center;
+                        width: 100%;
+                    }
+                    .report-meta {
+                        font-size: 10pt;
+                        margin-bottom: 10px;
+                    }
+                    
+                    /* Customer Header Styling */
+                    .cust-header-row td {
+                        background-color: #e9ecef !important;
+                        font-weight: bold;
+                        padding-left: 10px;
+                    }
+                    
+                    /* Total Row Styling */
+                    .total-row td {
+                        background-color: #f8f9fa !important;
+                        font-weight: bold;
+                        border-top: 2px solid #1F3864;
+                    }
+                    .grand-total-row td {
+                        background-color: #e2e3e5 !important;
+                        font-weight: bold;
+                        font-size: 10pt;
+                        border-top: 2px double #1F3864;
+                        border-bottom: 2px double #1F3864;
+                    }
+                    .backlog-thru-header {
+                        background-color: #ffffff !important;
+                        color: #000000 !important;
+                        border: 1px solid #000000 !important;
+                        border-left: none !important;
+                    }
+                    .backlog-thru-text {
+                        border-bottom: 2px solid #000000;
+                        padding-bottom: 1px;
+                        width: 100%;
+                        display: block;
+                    }
+                    .customer-name-header {
+                        background-color: #ffffff !important;
+                        color: #000000 !important;
+                        border: 1px solid #000000 !important;
+                        border-right: none !important;
+                        text-align: left !important;
+                        padding-left: 10px !important;
+                        font-weight: bold;
+                    }
+                </style>
+
+                <div class="page">
+                    <div class="report-title-header">
+                        <span>Order Backlog Report</span>
+                    </div>
+
+                    <div class="row report-meta">
+                        <div class="col-6">
+                            <strong>User: </strong> <t t-esc="res_user.name"/><br/>
+                            <strong>Company: </strong> <t t-esc="res_company.name"/>
+                        </div>
+                        <div class="col-6 text-end">
+                            <strong>Date: </strong> <t t-esc="report_date"/><br/>
+                            <strong>Time: </strong> <t t-esc="report_time"/>
+                        </div>
+                    </div>
+
+                    <div class="report-meta">
+                        <em>Report Thru: <t t-esc="docs.backlog_thru"/> | Start Date: <t t-esc="docs.start_date.strftime('%d/%m/%y')"/></em>
+                    </div>
+
+                    <t t-if="customers_data">
+                        <table class="backlog-table">
+                            <tbody>
+                                <t t-foreach="customers_data" t-as="cust">
+                                    <tr>
+                                        <td colspan="6" class="customer-name-header">
+                                            <span>Customer : </span><t t-esc="cust['customer_name']"/>
+                                        </td>
+                                        <t t-if="cust_index == 0">
+                                            <td t-att-colspan="len(month_columns)" class="backlog-thru-header tc">
+                                                <span class="backlog-thru-text">Backlog Thru</span>
+                                            </td>
+                                        </t>
+                                        <t t-else="">
+                                            <td t-att-colspan="len(month_columns)" style="border: 1px solid #000000; border-left: none;"/>
+                                        </t>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="width:10%; background-color: #1F3864; color: #ffffff; font-weight: bold; text-align: center;">Order ID</td>
+                                        <td style="width:5%; background-color: #1F3864; color: #ffffff; font-weight: bold; text-align: center;">Line</td>
+                                        <td style="width:15%; background-color: #1F3864; color: #ffffff; font-weight: bold; text-align: center;">Part ID</td>
+                                        <td style="width:10%; background-color: #1F3864; color: #ffffff; font-weight: bold; text-align: center;">Next Ship</td>
+                                        <td style="width:9%; background-color: #1F3864; color: #ffffff; font-weight: bold;" class="tr">Total Price</td>
+                                        <td style="width:9%; background-color: #1F3864; color: #ffffff; font-weight: bold;" class="tr">Total Backlog</td>
+                                        <t t-foreach="month_columns" t-as="col_date">
+                                            <td class="tr" style="width:9%; background-color: #1F3864; color: #ffffff; font-weight: bold;" t-esc="col_date"/>
+                                        </t>
+                                    </tr>
+
+                                    <t t-foreach="cust['lines']" t-as="line">
+                                        <tr t-attf-class="backlog-row{{ ' alt' if line_index % 2 == 0 else '' }}">
+                                            <td><span t-esc="line['order']"/></td>
+                                            <td class="tc"><span t-esc="line['line_no']"/></td>
+                                            <td><span t-esc="line['part']"/></td>
+                                            <td class="tc"><span t-esc="line['next_ship']"/></td>
+                                            <td class="tr"><t t-esc="res_company.currency_id.symbol"/> <span t-esc="line['tot_price']" t-options='{"widget": "float", "precision": 1}'/></td>
+                                            <td class="tr"><t t-esc="res_company.currency_id.symbol"/> <span t-esc="line['tot_backlog']" t-options='{"widget": "float", "precision": 1}'/></td>
+                                            <t t-foreach="line['monthly_values']" t-as="m_val">
+                                                <td class="tr"><t t-esc="res_company.currency_id.symbol"/> <span t-esc="m_val" t-options='{"widget": "float", "precision": 1}'/></td>
+                                            </t>
+                                        </tr>
+                                    </t>
+                                    
+                                    <tr class="total-row">
+                                        <td colspan="4" class="tr">Customer Totals</td>
+                                        <td class="tr"><t t-esc="res_company.currency_id.symbol"/> <span t-esc="cust['customer_total_price']" t-options='{"widget": "float", "precision": 1}'/></td>
+                                        <td class="tr"><t t-esc="res_company.currency_id.symbol"/> <span t-esc="cust['customer_total_backlog']" t-options='{"widget": "float", "precision": 1}'/></td>
+                                        <t t-foreach="cust['customer_monthly_totals']" t-as="cmt">
+                                            <td class="tr"><t t-esc="res_company.currency_id.symbol"/> <span t-esc="cmt" t-options='{"widget": "float", "precision": 1}'/></td>
+                                        </t>
+                                    </tr>
+                                </t>
+                                
+                                <tr class="grand-total-row">
+                                    <td colspan="4" class="tr">Report Totals</td>
+                                    <td class="tr"><t t-esc="res_company.currency_id.symbol"/> <span t-esc="totals['grand_total_price']" t-options='{"widget": "float", "precision": 1}'/></td>
+                                    <td class="tr"><t t-esc="res_company.currency_id.symbol"/> <span t-esc="totals['grand_total_backlog']" t-options='{"widget": "float", "precision": 1}'/></td>
+                                    <t t-foreach="totals['grand_monthly_totals']" t-as="gmt">
+                                        <td class="tr"><t t-esc="res_company.currency_id.symbol"/> <span t-esc="gmt" t-options='{"widget": "float", "precision": 1}'/></td>
+                                    </t>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+                    <t t-else="">
+                        <table class="backlog-table">
+                            <tbody>
+                                <tr>
+                                    <td class="no-data">
+                                        No backlog found for the selected criteria.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

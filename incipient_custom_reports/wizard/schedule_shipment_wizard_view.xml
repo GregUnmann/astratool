@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View for the Wizard -->
+    <record id="view_schedule_shipment_wizard_form" model="ir.ui.view">
+        <field name="name">schedule.shipment.wizard.form</field>
+        <field name="model">schedule.shipment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Schedule Shipment Report">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="start_date" required="1" />
+                        </group>
+                        <group>
+                            <field name="end_date" required="1" />
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_print_report" string="Print PDF" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for the Wizard -->
+    <record id="action_schedule_shipment_wizard" model="ir.actions.act_window">
+        <field name="name">Schedule Shipment Report</field>
+        <field name="res_model">schedule.shipment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_schedule_shipment_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu Item (Inventory -> Reporting -> Schedule Shipment Report) -->
+    <menuitem id="menu_schedule_shipment_report"
+              name="Schedule Shipments Report"
+              parent="stock.menu_warehouse_report"
+              action="action_schedule_shipment_wizard"
+              sequence="150" />
+
+</odoo>

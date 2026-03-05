@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Order Backlog Report Action -->
+    <record id="action_report_order_backlog" model="ir.actions.report">
+        <field name="name">Order Backlog Report</field>
+        <field name="model">order.backlog.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">incipient_custom_reports.report_order_backlog</field>
+        <field name="report_file">incipient_custom_reports.report_order_backlog</field>
+        <field name="print_report_name">'Order Backlog - {}'.format(object.start_date.strftime('%d-%m-%y'))</field>
+        <field name="binding_model_id" ref="model_order_backlog_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Schedule Shipment Report Action -->
+    <record id="action_report_schedule_shipment" model="ir.actions.report">
+        <field name="name">Schedule Shipment Report</field>
+        <field name="model">schedule.shipment.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">incipient_custom_reports.report_schedule_shipment</field>
+        <field name="report_file">incipient_custom_reports.report_schedule_shipment</field>
+        <field name="print_report_name">'Scheduled Shipments {} - {}'.format(object.start_date.strftime('%d-%m-%y'), object.end_date.strftime('%d-%m-%y'))</field>
+        <field name="binding_model_id" ref="model_schedule_shipment_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>
